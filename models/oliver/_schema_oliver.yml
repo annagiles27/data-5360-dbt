@@ -13,3 +13,5 @@ models:
     description: "oliver store dimension"
   - name: fact_sales
     description: "oliver sales fact"
+  - name: fact_certification
+    description: "employee certifications fact. the grain is employee + date. each row represents a certification for an employee on a given date."
