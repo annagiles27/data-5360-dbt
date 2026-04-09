@@ -3,6 +3,7 @@
     schema='dw_ecoessentials'
 ) }}
 
+
 select
     e.email_key,
     ca.campaign_key,
@@ -10,25 +11,19 @@ select
     ev.eventtype_key,
     d.date_key,
     1 as event_count
-from {{ ref('stg_marketing_emails') }} m
+from {{ source('ecoessentials_landing', 'marketing_emails')}} m 
 
--- Clean dimension IDs during join
 inner join {{ ref('dim_email') }} e
-    on TRY_TO_NUMBER(NULLIF(e.emailid, 'NULL')) = m.email_id
+    on e.emailid = m.emailid
 
 inner join {{ ref('dim_campaign') }} ca
-    on TRY_TO_NUMBER(NULLIF(ca.campaign_id, 'NULL')) = m.campaign_id
+    on ca.campaign_id = m.campaignid
 
 inner join {{ ref('dim_ecocustomer') }} c
-    on c.customer_id = m.customer_id
+    on c.customer_id = m.customerid
 
 inner join {{ ref('dim_eventtype') }} ev
-    on NULLIF(ev.eventtype, 'NULL') = m.event_type
+    on ev.eventtype = m.eventtype
 
 inner join {{ ref('dim_ecodate') }} d
-    on d.date_day = m.event_date
-
-where m.email_id is not null
-  and m.customer_id is not null
-  and m.campaign_id is not null
-  and m.event_type is not null
+    on d.date_day = cast(m.eventtimestamp as date)
